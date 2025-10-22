@@ -33,7 +33,7 @@
   <p>
     Swarm:
     <span class="toc">
-    {% for model in model_reports %}
+    {% for model in model_reports if not model.official %}
     <a class="{{ model.state }}" href="#{{ model.short_name }}" title="DHT prefix: {{ model.dht_prefix }}">{{ model.short_name }}</a>
     {% if not loop.last %}<span class="bull">&bull;</span>{% endif %}
     {% endfor %}
@@ -62,7 +62,7 @@
   </p>
 </section>
 
-{% for model in model_reports %}
+{% for model in model_reports if not model.official %}
 <section id="{{ model.short_name }}">
   <p>
     Model

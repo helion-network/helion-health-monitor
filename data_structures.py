@@ -2,10 +2,15 @@ from typing import Optional
 from urllib.parse import urlparse
 
 import petals
-import pydantic
+try:
+    # Prefer Pydantic v1-compatible dataclass wrapper when running under Pydantic v2
+    from pydantic.v1 import dataclasses as pydantic_dataclasses
+except Exception:
+    # Fallback for environments with Pydantic v1
+    from pydantic import dataclasses as pydantic_dataclasses
 
 
-@pydantic.dataclasses.dataclass
+@pydantic_dataclasses.dataclass
 class ModelInfo(petals.data_structures.ModelInfo):
     dht_prefix: Optional[str] = None
     official: bool = True

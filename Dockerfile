@@ -1,6 +1,6 @@
 FROM python:3.10-slim-bullseye
 
-RUN apt update && apt install -y libopenblas-dev ninja-build build-essential wget git
+RUN apt update && apt install -y libopenblas-dev ninja-build build-essential wget git telnet
 RUN python -m pip install --upgrade pip pytest cmake scikit-build setuptools
 
 WORKDIR /usr/src/app/

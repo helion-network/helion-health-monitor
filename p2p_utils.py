@@ -9,7 +9,7 @@ from petals.server.handler import TransformerConnectionHandler
 info_cache = hivemind.TimedStorage()
 
 
-async def check_reachability(peer_id, _, node, *, fetch_info=False, connect_timeout=5, expiration=300, use_cache=True):
+async def check_reachability(peer_id, _, node, *, fetch_info=False, connect_timeout=10, expiration=300, use_cache=True):
     if use_cache:
         entry = info_cache.get(peer_id)
         if entry is not None:

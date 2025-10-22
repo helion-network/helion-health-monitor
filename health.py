@@ -4,6 +4,7 @@ from collections import Counter
 from contextlib import suppress
 from dataclasses import asdict
 from functools import partial
+import socket
 
 import hivemind
 import numpy as np
@@ -27,7 +28,27 @@ def fetch_health_state(dht: hivemind.DHT) -> dict:
             bootstrap_peer_ids.append(peer_id)
 
     reach_infos = dht.run_coroutine(partial(check_reachability_parallel, bootstrap_peer_ids))
-    bootstrap_states = ["online" if reach_infos[peer_id]["ok"] else "unreachable" for peer_id in bootstrap_peer_ids]
+    bootstrap_states = []
+    for addr, peer_id in zip(config.INITIAL_PEERS, bootstrap_peer_ids):
+        libp2p_ok = reach_infos.get(peer_id, {}).get("ok", False)
+        maddr = Multiaddr(addr)
+        ip_ok = False
+        with suppress(Exception):
+            ip = maddr["ip4"]
+            port = int(maddr["tcp"])
+            s = socket.socket()
+            s.settimeout(3)
+            try:
+                s.connect((ip, port))
+                ip_ok = True
+            except Exception:
+                ip_ok = False
+            finally:
+                try:
+                    s.close()
+                except Exception:
+                    pass
+        bootstrap_states.append("online" if (libp2p_ok or ip_ok) else "unreachable")
 
     models = config.MODELS[:]
     model_index = dht.get("_petals.models", latest=True)
@@ -36,6 +57,9 @@ def fetch_health_state(dht: hivemind.DHT) -> dict:
         custom_models = []
         for dht_prefix, model in model_index.value.items():
             if dht_prefix in official_dht_prefixes:
+                continue
+            # Skip invalid prefixes that contain the UID delimiter, which would break parse_uid
+            if UID_DELIMITER in dht_prefix:
                 continue
             with suppress(TypeError, ValueError):
                 model_info = ModelInfo.from_dict(model.value)
@@ -72,8 +96,9 @@ def fetch_health_state(dht: hivemind.DHT) -> dict:
         server_rows = []
         for peer_id, span in sorted(model_servers[model.dht_prefix].items()):
             reachable = reach_infos[peer_id]["ok"] if peer_id in reach_infos else True
-            state = span.state.name.lower() if reachable else "unreachable"
-            if state == "online":
+            state = span.state.name.lower()
+            # Count blocks as healthy based on actual span state, even if peer is unreachable to us
+            if span.state == ServerState.ONLINE:
                 block_healthy[span.start : span.end] = True
 
             show_public_name = state == "online" and span.length >= 10
