@@ -4,7 +4,7 @@ from data_structures import ModelInfo
 
 # INITIAL_PEERS = PUBLIC_INITIAL_PEERS
 INITIAL_PEERS = [
-    "/ip4/172.16.51.60/tcp/31337/p2p/QmRDEYd5HvKggXbHT8oudvNae4zDLE6bMQRcR8bhKxE4Ex",
+    "/ip4/115.77.97.210/tcp/31337/p2p/QmRDEYd5HvKggXbHT8oudvNae4zDLE6bMQRcR8bhKxE4Ex",
 ]
 
 MODELS = [
