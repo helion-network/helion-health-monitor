@@ -6,7 +6,7 @@ from enum import Enum
 
 import hivemind
 import simplejson
-from flask import Flask, render_template
+from flask import Flask
 
 import config
 from health import fetch_health_state
@@ -21,7 +21,8 @@ class StateUpdaterThread(threading.Thread):
         self.dht = dht
         self.app = app
 
-        self.state_json = self.state_html = None
+        self.state_json = None
+        self.prometheus_metrics = None
         self.ready = threading.Event()
 
     def run(self):
@@ -30,7 +31,6 @@ class StateUpdaterThread(threading.Thread):
             try:
                 state_dict = fetch_health_state(self.dht)
                 with self.app.app_context():
-                    self.state_html = render_template("index.html", **state_dict)
                     self.prometheus_metrics = get_prometheus_metrics(state_dict)
                 self.state_json = simplejson.dumps(state_dict, indent=2, ignore_nan=True, default=json_default)
 

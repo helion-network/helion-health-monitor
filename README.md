@@ -33,6 +33,8 @@ You can run this app on your server using these commands:
 git clone https://github.com/petals-infra/health.petals.dev
 cd health.petals.dev
 pip install -r requirements.txt
+npm install --prefix frontend/health-ui
+npm run build --prefix frontend/health-ui
 flask run --host=0.0.0.0 --port=5000
 ```
 
@@ -42,6 +44,24 @@ In production, we recommend using gunicorn instead of the Flask dev server:
 gunicorn app:app --bind 0.0.0.0:5000 --worker-class gthread --threads 10 --timeout 120
 ```
 
+### Frontend development
+
+The health monitor UI is now a React single-page application compiled with Vite.
+
+```bash
+# install dependencies once
+npm install --prefix frontend/health-ui
+
+# run the React dev server with live reload (proxies API calls to Flask on :5000)
+npm run dev --prefix frontend/health-ui
+
+# lint/build for production
+npm run lint --prefix frontend/health-ui
+npm run build --prefix frontend/health-ui
+```
+
+When you run `npm run build`, the artifacts land in `frontend/health-ui/dist` and Flask serves them automatically.
+
 <details>
 <summary><b>Running with Docker</b></summary>
 
@@ -50,6 +70,8 @@ git clone https://github.com/petals-infra/health.petals.dev
 cd health.petals.dev
 docker-compose up --build -d
 ```
+
+The Docker image performs a frontend build during `docker build`, so no extra steps are required.
 </details>
 
 ### Monitoring private swarm
