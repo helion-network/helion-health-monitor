@@ -1,6 +1,7 @@
 import type { HealthState } from '@/types'
 
-const HEALTH_ENDPOINT = '/api/v1/state'
+// const HEALTH_ENDPOINT = '/api/v1/state'
+const HEALTH_ENDPOINT = 'http://localhost:6969/api/v1/state'
 
 export const fetchHealthState = async (): Promise<HealthState> => {
   const response = await fetch(HEALTH_ENDPOINT, {
